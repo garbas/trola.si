@@ -1,0 +1,2 @@
+[buildout]
+extend = app.cfg

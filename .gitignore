@@ -1,2 +1,11 @@
-/var/
+*.py?
+
+/.installed.cfg
+/app/
+/bin/
+/buildout.cfg
+/develop-eggs/
 /docs/_build/
+/parts/
+/trolasi.egg-info/
+/var/
