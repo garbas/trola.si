@@ -17,6 +17,7 @@ define([
         position: new google.maps.LatLng(
           parseFloat(this.options.model.get('latitude')),
           parseFloat(this.options.model.get('longitude'))),
+        icon: '../images/lpp.png',
         draggable: false
       });
     }

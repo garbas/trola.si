@@ -7,19 +7,16 @@ define([
   Search.prototype = $.extend({}, Typeahead.prototype, {
     constructor: Search,
     defaults: $.extend({}, $.fn.typeahead.defaults, {
-        menuId: 'lpp-search-results',
-        prefix: 'Postajališče: '
+        elementPrefix: 'Postajališče: '
       }),
     init: function($element, options) {
       var self = this;
       options = $.extend(self.defaults, options);
       Typeahead.apply(self, [$element, options]);
-      self.$content = $('#lpp-content');
-      self.$menu.attr('id', this.options.menuId);
       self.$element.on('focus', function(e) {
-        var prefix = self.options.prefix;
-        if ($(this).val().substr(0, prefix.length) === prefix) {
-          $(this).val($(this).val().substr(prefix.length));
+        var elementPrefix = self.options.elementPrefix;
+        if ($(this).val().substr(0, elementPrefix.length) === elementPrefix) {
+          $(this).val($(this).val().substr(elementPrefix.length));
         }
       });
     },
