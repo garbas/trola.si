@@ -1,7 +1,6 @@
 *.py?
 
 /.installed.cfg
-/app/
 /bin/
 /buildout.cfg
 /develop-eggs/

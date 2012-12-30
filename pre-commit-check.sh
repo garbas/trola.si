@@ -4,8 +4,11 @@
 #echo '====== Running tests ========='
 #bin/nosetests -s --with-coverage --cover-package=trolasi --cover-tests
 
-echo '====== Running flake8 ======'
+echo '====== flake8 ======'
 flake8 setup.py
 flake8 app.py
+
+echo '====== jshint ======'
+jshint app/js
 
 exit 0
