@@ -36,7 +36,7 @@ define([
              'elementType': 'labels',
              'stylers': [{ 'visibility': 'off' }]
             },
-            {'featureType': 'transit.station.bus',
+            {'featureType': 'transit.station.rail',
              'elementType': 'labels',
              'stylers': [{ 'visibility': 'off' }]
             }

@@ -1,36 +1,14 @@
 define([
   'jquery',
+  'underscore',
   'bootstrap.typeahead'
-], function($, Typeahead) {
+], function($, _, Typeahead) {
 
   var Search = function($element, options) { this.init($element, options); };
   Search.prototype = $.extend({}, Typeahead.prototype, {
     constructor: Search,
-    defaults: $.extend({}, $.fn.typeahead.defaults, {
-        elementPrefix: 'Postajališče: '
-      }),
     init: function($element, options) {
-      var self = this;
-      options = $.extend(self.defaults, options);
-      Typeahead.apply(self, [$element, options]);
-      self.$element.on('focus', function(e) {
-        var elementPrefix = self.options.elementPrefix;
-        if ($(this).val().substr(0, elementPrefix.length) === elementPrefix) {
-          $(this).val($(this).val().substr(elementPrefix.length));
-        }
-      });
-    },
-    toItemsWithNames: function(items) {
-      var itemsWithNames = [];
-      $.each(items, function(i, item) {
-        itemsWithNames.push(item.name);
-      });
-      return itemsWithNames;
-    },
-    click: function (e) {
-      e.stopPropagation();
-      e.preventDefault();
-      this.select(e);
+      Typeahead.apply(this, [ $element, options ]);
     },
     select: function (e) {
       var value = this.$menu.find('.active').attr('data-value');
@@ -45,39 +23,56 @@ define([
         .change();
       return this.hide();
     },
-    show: function() {
-      this.$content.hide();
-      return Typeahead.prototype.show.call(this);
+    show: function () {
+      this.$menu.show();
+      this.shown = true;
+      return this;
     },
-    updater: function (itemName) {
-      return this.options.prefix + itemName;
-    },
-    matcher: function(item) {
-      return Typeahead.prototype.matcher.apply(this, [item.name]);
+    process: function (items) {
+      var self = this;
+      items = self.source.filter(function(item) {
+        return self.matcher(item.get('name'));
+      });
+      items = self.sorter(items);
+      if (!items.length) {
+        return self.shown ? self.hide() : self;
+      }
+      return self.render(items.slice(0, self.options.items)).show();
     },
     sorter: function(items) {
-      var self = this, sorted = [];
-      items = this.toItemsWithNames(items);
-      $.each(Typeahead.prototype.sorter.apply(this, [items]), function(i, item) {
-        sorted.push(self.options.stations_by_name[item]);
-      });
-      return sorted;
+      return _.sortBy(items, 'name');
     },
     render: function(items) {
-      var self = this, $routes;
-      items = self.toItemsWithNames(items);
-      Typeahead.prototype.render.apply(self, [items]);
-      if (self.options.stations_by_name) {
-        self.$menu.children().each(function(i, item) {
-          $routes = $('<ul>').appendTo(item);
-          $.each(self.options.stations_by_name[$(item).data('value')].routes, function(i, route) {
-            $routes.append(
-              $('<li/>').addClass('lpp-route-' + route).append(
-                $('<a href="#"/>').html(route)));
-          });
-        });
-      }
+      var self = this;
+
+      items = $(items).map(function (i, item) {
+        i = $(self.options.item).attr('data-value', item.get('number'));
+        i.find('a').html(self.highlighter(item));
+        return i[0];
+      });
+
+      items.first().addClass('active');
+      $('ul', self.$menu).html(items);
       return self;
+
+      //if (self.options.stations_by_name) {
+      //  self.$menu.children().each(function(i, item) {
+      //    $routes = $('<ul>').appendTo(item);
+      //    $.each(self.options.stations_by_name[$(item).data('value')].routes, function(i, route) {
+      //      $routes.append(
+      //        $('<li/>').addClass('lpp-route-' + route).append(
+      //          $('<a href="#"/>').html(route)));
+      //    });
+      //  });
+      //}
+      return self;
+    },
+    highlighter: function (item) {
+      var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+      return item.get('name').replace(
+          new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+            return '<strong>' + match + '</strong>';
+          });
     },
     showContent: function(itemName, selectedRoute) {
       var self = this;
